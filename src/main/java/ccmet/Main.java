@@ -1,5 +1,5 @@
 /*
- * Extarct subtitles from MET / Brightcove online stream.
+ * Extract subtitles from MET / Brightcove online stream.
  */
 package ccmet;
 
