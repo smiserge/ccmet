@@ -14,20 +14,39 @@ import java.util.ArrayList;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
-public class HttpsClient {
+/*
+ * 
+ */
+public class SegmentParser {
 
-    public int getContent(String https_url, ArrayList segments) {
+    public int getSrtRecords(String https_url, ArrayList srtRecords) {
         int rc = 0;
         URL url;
         try {
 
             url = new URL(https_url);
             HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+            if ((con != null) & (srtRecords != null)) {
 
-            //dumpl all cert info
-            //print_https_cert(con);
-            //dump all the content
-            rc = getSrtRecords(con, segments);
+                try {
+
+                    rc = con.getResponseCode();
+                    if (rc == 200) {
+                        BufferedReader br
+                                = new BufferedReader(
+                                        new InputStreamReader(con.getInputStream()));
+
+                        //dumpl all cert info
+                        //print_https_cert(con);
+                        //dump all the content
+                        parseStreamOfStrings(br, srtRecords);
+                        br.close();
+                    }
+
+                } catch (IOException e) {
+                    //e.printStackTrace();
+                }
+            }
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -37,44 +56,31 @@ public class HttpsClient {
         return rc;
     }
 
-    private int getSrtRecords(HttpsURLConnection con, ArrayList segments) {
-        int rc = 0;
-        if ((con != null) & (segments != null)) {
+    private void parseStreamOfStrings(BufferedReader br, ArrayList srtRecords) {
+        if ((br != null) & (srtRecords != null)) {
 
             try {
-
-                rc = con.getResponseCode();
-                if (rc == 200) {
-                    BufferedReader br
-                            = new BufferedReader(
-                                    new InputStreamReader(con.getInputStream()));
-
                     String input;
                     SrtRecord srt = new SrtRecord("", "");
                     while ((input = br.readLine()) != null) {
                         if (SrtRecord.isValidString(input)) {
-                            if (SrtRecord.isTime(input))
-                            {
+                            if (SrtRecord.isTime(input)) {
                                 String fixedTime = SrtRecord.fixTime(input);
                                 srt = new SrtRecord(fixedTime, "");
-                                segments.add(srt);
-                            }
-                            else  // anything else is subtitle text, append it.
+                                srtRecords.add(srt);
+                            } else // anything else is subtitle text, append it.
                             {
                                 srt.addText(input);
                             }
                         }
                         //System.out.println(input);
                     }
-                    br.close();
-                }
 
             } catch (IOException e) {
                 //e.printStackTrace();
             }
 
         }
-        return rc;
     }
 
 }
