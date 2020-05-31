@@ -56,24 +56,53 @@ public class SegmentParser {
         return rc;
     }
 
+    /**
+     * parseStreamOfStrings
+     * @param br
+     * @param srtRecords 
+     * 
+     * VTT records are coming as a stream of strings similar to:
+     * --------------------
+     * WEBVTT
+     * X-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:0
+     * 
+     * 2
+     * 03:30.000 --> 03:32.067
+     * The nights are brighter here
+     * than daytime anywhere else!
+     * 
+     * 3
+     * 03:32.133 --> 03:39.667
+     * Lovely Venice!  Abode of every pleasure!
+     * ----------------------
+     * 
+     * So we process it as follows:
+     * 1. Split the stream into separate groups using empty string as a separator
+     * 2. Parse each group into an SrtRecord object
+     * 3. If valid SrtRecord was possible to create, add it to the collection of SrtRecrods
+     * 4. Bail out when no more strings in the stream
+     * 
+     */
     private void parseStreamOfStrings(BufferedReader br, ArrayList srtRecords) {
         if ((br != null) & (srtRecords != null)) {
 
             try {
                     String input;
-                    SrtRecord srt = new SrtRecord("", "");
+                    ArrayList srtStrings = new ArrayList<String>();
                     while ((input = br.readLine()) != null) {
-                        if (SrtRecord.isValidString(input)) {
-                            if (SrtRecord.isTime(input)) {
-                                String fixedTime = SrtRecord.fixTime(input);
-                                srt = new SrtRecord(fixedTime, "");
-                                srtRecords.add(srt);
-                            } else // anything else is subtitle text, append it.
-                            {
-                                srt.addText(input);
-                            }
+                        while (!input.isEmpty()) //accumulate until empty string
+                        {
+                            srtStrings.add(input);
+                            input = br.readLine();
                         }
-                        //System.out.println(input);
+                        // empty string found, try to create SRT Record
+                        input = br.readLine();
+                        SrtRecord srt = SrtRecord.parse(srtStrings);
+                        if (srt != null) // add it if parsing was successful
+                        {
+                            srtRecords.add(srt);
+                        }                           
+                       //System.out.println(input);
                     }
 
             } catch (IOException e) {

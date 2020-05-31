@@ -5,6 +5,9 @@
  */
 package ccmet;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 /**
  *
  * @author serge
@@ -17,58 +20,59 @@ public class SrtRecord {
     private static String VTT = "WEBVTT";
     private static String TIMESTAMP = "X-TIMESTAMP";
 
-
     public SrtRecord(String time, String text) {
         this.time = time;
         this.text = text;
     }
 
     public static boolean isValidString(String input) {
-        boolean isValid = true;
-        if (input.startsWith(VTT)) {
-            isValid = false;
-        }
-        if (input.startsWith(TIMESTAMP)) {
-            isValid = false;
-        }
-        if (input.isEmpty()) {
-            isValid = false;
+        boolean isValid = false;
+        if (input != null) {
+            if (input.startsWith(VTT)) {
+                isValid = false;
+            } else if (input.startsWith(TIMESTAMP)) {
+                isValid = false;
+            } else if (input.isEmpty()) {
+                isValid = false;
+            } else {
+                isValid = true;
+            }
         }
         return isValid;
     }
+
     public static boolean isTime(String input) {
         boolean isTime = false;
-        if (input.indexOf(TIME_SEPARATOR) > -1) {
-            isTime = true;
+        if (input != null) {
+            if (input.indexOf(TIME_SEPARATOR) > -1) {
+                isTime = true;
+            }
         }
         return isTime;
     }
 
     /**
-     * @param time the time where formatting needs to be corrected to comply with SRT spec
-     * 
-     * BCV time is formatted as: 
-     *   59:31.205 --> 59:35.676 or
-     *   01:00:22.422 --> 01:00:28.262
-     * which needs to be converted to SRT format:
-     *   00:59:31,205 --> 00:59:35.676 or
-     *   01:00:22,422 --> 01:00:28.262
-     * 
-     * 
+     * @param time the time where formatting needs to be corrected to comply
+     * with SRT spec
+     *
+     * BCV time is formatted as: 59:31.205 --> 59:35.676 or 01:00:22.422 -->
+     * 01:00:28.262 which needs to be converted to SRT format: 00:59:31,205 -->
+     * 00:59:35.676 or 01:00:22,422 --> 01:00:28.262
+     *
+     *
      * @return corrected time, parameter is no modified
      */
     public static String fixTime(String time) {
         String result = "";
         String curr = time.replace('.', ',');
         int separator_index = curr.indexOf(TIME_SEPARATOR);
-        if (separator_index > -1)
-        {
+        if (separator_index > -1) {
             String left_time = curr.substring(0, separator_index);  // get left hand time
             if (left_time.indexOf(':') == left_time.lastIndexOf(':')) // only one ":" is present, so need to prepend 00
             {
                 left_time = "00:" + left_time;
             }
-            
+
             String right_time = curr.substring(separator_index + TIME_SEPARATOR.length()); // get right hand time
             if (right_time.indexOf(':') == right_time.lastIndexOf(':')) // only one ":" is present, so need to prepend 00
             {
@@ -76,10 +80,34 @@ public class SrtRecord {
             }
             result = left_time + TIME_SEPARATOR + right_time;
         }
-         
+
         return result;
     }
-    
+
+    public static SrtRecord parse(ArrayList<String> srtStrings) {
+        SrtRecord srt = null;
+
+        Iterator<String> iter = srtStrings.iterator();
+        while (iter.hasNext()) {
+            String curString = iter.next();
+
+            //once time record is detected, create new SrtRecord object
+            if (SrtRecord.isTime(curString)) {
+                String fixedTime = SrtRecord.fixTime(curString);
+                srt = new SrtRecord(fixedTime, "");
+            } else {
+                // ignore invalid strings
+                // add valid strings if SrtRecord object already present
+                if (SrtRecord.isValidString(curString)) {
+                    if (srt != null) {
+                        srt.addText(curString);
+                    }
+                }
+            }
+        }
+        return srt;
+    }
+
     /**
      * @return the time
      */
@@ -113,22 +141,18 @@ public class SrtRecord {
      */
     public void addText(String text) {
         if (this.text != null) {
-            if (this.text.isEmpty())
-            {
+            if (this.text.isEmpty()) {
                 this.text = text;
-            }
-            else
-            {
+            } else {
                 this.text = this.text + "\n" + text;
             }
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         //String out = "Time: " + this.time + "\nText: " + this.text + "\n";
         String out = this.time + "\n" + this.text + "\n";
         return out;
     }
-    
+
 }
