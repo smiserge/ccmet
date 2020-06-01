@@ -18,7 +18,8 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 public class Main {
 
     public static void main(String[] args) {
-        String vtt_url_sample = "https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment2.vtt?akamai_token=exp=1590911574~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=51b7cc02aa4f47eaa3dff7454e7ce9bd15af20a8e64e0a8687554a198b595f9f";
+        String vtt_url_sample = "https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment6.vtt?akamai_token=exp=1590993786~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=a866970b08aeeccd21c491497652e3fec60506371dd73b51ad6d887759ba572f";
+                //"https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment2.vtt?akamai_token=exp=1590911574~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=51b7cc02aa4f47eaa3dff7454e7ce9bd15af20a8e64e0a8687554a198b595f9f";
                 //"https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment6.vtt?akamai_token=exp=1590889370~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=3aed34d7420b3ac2d9f8dab5be56e0228d9b6008ab065d0fa90db3febf927d0e";
         //                       "https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/8103d063-4f71-498b-a936-2e7345a71a8f/aa7b70ea-c18f-4de6-8426-aef7366d94b4/segment16.vtt?akamai_token=exp=1589176673~acl=/media/v1/hls/v4/clear/2079714550001/8103d063-4f71-498b-a936-2e7345a71a8f/aa7b70ea-c18f-4de6-8426-aef7366d94b4/*~hmac=1e743e7a5a118ff12ef4156bcd0d9ccd18ba21049084b0f5f96fd4997c534806";
         //                       "https://house-fastly-signed-us-east-1-prod.brightcovecdn.com/media/v1/hls/v4/clear/102076671001/ad37f3a9-0779-46ac-90d7-d5ea8922488e/4e56b328-0806-476d-aca6-16a5ecc8584f/segment15.vtt?fastly_token=NWU5OWE5OGVfZDZhZjE3ZTU0ZjgzYmVmN2Q5NzRiMjM4YTY3YmNiNDQ4YjliMTc1ZjAwOGM0ZWI0NDVjNDM3YmYxZTkyYzZkOF8vL2hvdXNlLWZhc3RseS1zaWduZWQtdXMtZWFzdC0xLXByb2QuYnJpZ2h0Y292ZWNkbi5jb20vbWVkaWEvdjEvaGxzL3Y0L2NsZWFyLzEwMjA3NjY3MTAwMS9hZDM3ZjNhOS0wNzc5LTQ2YWMtOTBkNy1kNWVhODkyMjQ4OGUvNGU1NmIzMjgtMDgwNi00NzZkLWFjYTYtMTZhNWVjYzg1ODRmLw%3D%3D";
@@ -37,7 +38,11 @@ public class Main {
         int segment_index = vtt_url_sample.indexOf("segment");
         String vtt_url_base = vtt_url_sample.substring(0, segment_index);
         int qm_index = vtt_url_sample.indexOf("?");
-        String session_token = vtt_url_sample.substring(qm_index+1);
+        String session_token = null;
+        if (qm_index > -1)
+        {
+            session_token = vtt_url_sample.substring(qm_index+1);
+        }
         
         SegmentParser parser = new SegmentParser();
         FileWriter myWriter = null;
@@ -47,14 +52,17 @@ public class Main {
             //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         //URL for initial segment
-        //int segment_id = 0;
-        int segment_id = 6;
-        int srt_id = 1; //per SRT spec its index starts at 1 
+        int segment_id = 1;
         String segment_name = "segment" + segment_id + ".vtt";
-        String vtt_segment_url = vtt_url_base + segment_name + "?" + session_token;
+        String vtt_segment_url = vtt_url_base + segment_name;
+        if (session_token != null)
+        {
+            vtt_segment_url += "?" + session_token;
+        }
 
         ArrayList srtRecords = new ArrayList<SrtRecord>();
         int rc = parser.getSrtRecords(vtt_segment_url, srtRecords);
+        int srt_id = 1; //per SRT spec its index starts at 1 
         while (rc == 200) {
             //System.out.println(" *******************  Segment: " + segment_id + " RC = " + rc);
             //System.out.println(segment_id);
@@ -77,7 +85,11 @@ public class Main {
             srtRecords = new ArrayList<SrtRecord>();
             segment_id++;
             segment_name = "segment" + segment_id + ".vtt";
-            vtt_segment_url = vtt_url_base + segment_name + "?" + session_token;
+            vtt_segment_url = vtt_url_base + segment_name;
+            if (session_token != null)
+            {
+                vtt_segment_url += "?" + session_token;
+            }
 
             rc = parser.getSrtRecords(vtt_segment_url, srtRecords);
         }
