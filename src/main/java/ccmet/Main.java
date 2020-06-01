@@ -18,7 +18,9 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 public class Main {
 
     public static void main(String[] args) {
-        String vtt_url_sample = "https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment6.vtt?akamai_token=exp=1590993786~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=a866970b08aeeccd21c491497652e3fec60506371dd73b51ad6d887759ba572f";
+        String vtt_url_sample = "https://live.performa.intio.tv/media/0213f520-b768-4795-ad66-2ddc51cd7030/subs-eng-6.vtt";
+                //"https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/102076671001/7994592b-cad9-4371-ae15-a02f13b1bc23/23937433-02b8-458f-80ed-2f0b226d940f/segment5.vtt?akamai_token=exp=1590992418~acl=/media/v1/hls/v4/clear/102076671001/7994592b-cad9-4371-ae15-a02f13b1bc23/23937433-02b8-458f-80ed-2f0b226d940f/*~hmac=faf34c6c72fd58c5f5d82a972fdfe3a19b001050ae6523ff5fd4757f7e74daae";
+                //"https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment6.vtt?akamai_token=exp=1590993786~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=a866970b08aeeccd21c491497652e3fec60506371dd73b51ad6d887759ba572f";
                 //"https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment2.vtt?akamai_token=exp=1590911574~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=51b7cc02aa4f47eaa3dff7454e7ce9bd15af20a8e64e0a8687554a198b595f9f";
                 //"https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/segment6.vtt?akamai_token=exp=1590889370~acl=/media/v1/hls/v4/clear/2079714550001/c2a4a8b0-7572-4ff4-b3df-65ac2d6974c7/001b565c-4722-4312-a23f-f8bb6442d3a3/*~hmac=3aed34d7420b3ac2d9f8dab5be56e0228d9b6008ab065d0fa90db3febf927d0e";
         //                       "https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/2079714550001/8103d063-4f71-498b-a936-2e7345a71a8f/aa7b70ea-c18f-4de6-8426-aef7366d94b4/segment16.vtt?akamai_token=exp=1589176673~acl=/media/v1/hls/v4/clear/2079714550001/8103d063-4f71-498b-a936-2e7345a71a8f/aa7b70ea-c18f-4de6-8426-aef7366d94b4/*~hmac=1e743e7a5a118ff12ef4156bcd0d9ccd18ba21049084b0f5f96fd4997c534806";
@@ -34,9 +36,21 @@ public class Main {
         //String bcv_url_base  = "https://house-fastly-signed-us-east-1-prod.brightcovecdn.com/media/v1/hls/v4/clear/102076671001/ee4bc7bb-1f0e-4c8b-9408-4c143737ffe1/f6e8b417-b5e0-4d4e-9f77-02d2add13044/";
         //String bcv_url_token = "fastly_token=NWU5MDk3MTNfMzU2MThlZDcxMDEyYmZjOTNkNDljOTljZmJiMDI2NjZiYjNkNjUzMDFkMjdjNzBhYTkzZTBlNmRkYzAyMWQxY18vL2hvdXNlLWZhc3RseS1zaWduZWQtdXMtZWFzdC0xLXByb2QuYnJpZ2h0Y292ZWNkbi5jb20vbWVkaWEvdjEvaGxzL3Y0L2NsZWFyLzEwMjA3NjY3MTAwMS9lZTRiYzdiYi0xZjBlLTRjOGItOTQwOC00YzE0MzczN2ZmZTEvZjZlOGI0MTctYjVlMC00ZDRlLTlmNzctMDJkMmFkZDEzMDQ0Lw%3D%3D";
 
-        // parse base URL and token
-        int segment_index = vtt_url_sample.indexOf("segment");
-        String vtt_url_base = vtt_url_sample.substring(0, segment_index);
+        // parse base URL and session token
+        // so that MET, SFO, e.g.:
+        //  "https://bcbolt446c5271-a.akamaihd.net/media/v1/hls/v4/clear/102076671001/7994592b-cad9-4371-ae15-a02f13b1bc23/23937433-02b8-458f-80ed-2f0b226d940f/segment5.vtt?akamai_token=exp=1590992418~acl=/media/v1/hls/v4/clear/102076671001/7994592b-cad9-4371-ae15-a02f13b1bc23/23937433-02b8-458f-80ed-2f0b226d940f/*~hmac=faf34c6c72fd58c5f5d82a972fdfe3a19b001050ae6523ff5fd4757f7e74daae";
+        // and vienna URLs, e.g.:
+        // "https://live.performa.intio.tv/media/bd018a24-855b-49be-92b7-18b05b211381/subs-eng-6.vtt";               
+        // are handled by the same code.
+        // So, first find location of the ".vtt" fragment
+        int vtt_index = vtt_url_sample.indexOf(".vtt");
+        // now skip all digits immediately left of ".vtt"
+        char ch = vtt_url_sample.charAt(vtt_index-1);
+        while (Character.isDigit(ch) ) {
+            vtt_index --;
+            ch = vtt_url_sample.charAt(vtt_index-1);
+        }
+        String vtt_url_base = vtt_url_sample.substring(0, vtt_index);
         int qm_index = vtt_url_sample.indexOf("?");
         String session_token = null;
         if (qm_index > -1)
@@ -51,9 +65,10 @@ public class Main {
         } catch (IOException ex) {
             //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         //URL for initial segment
         int segment_id = 1;
-        String segment_name = "segment" + segment_id + ".vtt";
+        String segment_name = "" + segment_id + ".vtt";
         String vtt_segment_url = vtt_url_base + segment_name;
         if (session_token != null)
         {
@@ -84,7 +99,7 @@ public class Main {
             // prepare & read next segment
             srtRecords = new ArrayList<SrtRecord>();
             segment_id++;
-            segment_name = "segment" + segment_id + ".vtt";
+            segment_name = "" + segment_id + ".vtt";
             vtt_segment_url = vtt_url_base + segment_name;
             if (session_token != null)
             {
