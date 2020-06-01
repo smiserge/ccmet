@@ -84,11 +84,26 @@ public class SrtRecord {
         return result;
     }
 
+    /**
+     * clean-up the string with subtitles text
+     * Current implementation replaces all &nbsp; with " ".
+     * @param rawString
+     * @return 
+     */
+    public static String fixText(String rawString) {
+        String result = null;
+        if (rawString != null)
+        {
+           result = rawString.replaceAll("&nbsp;", " ");
+        }
+        return result;
+    }
+    
     public static SrtRecord parse(ArrayList<String> srtStrings) {
         SrtRecord srt = null;
 
         Iterator<String> iter = srtStrings.iterator();
-        while (iter.hasNext()) {
+         while (iter.hasNext()) {
             String curString = iter.next();
 
             //once time record is detected, create new SrtRecord object
@@ -100,7 +115,7 @@ public class SrtRecord {
                 // add valid strings if SrtRecord object already present
                 if (SrtRecord.isValidString(curString)) {
                     if (srt != null) {
-                        srt.addText(curString);
+                        srt.addText(fixText(curString));
                     }
                 }
             }
