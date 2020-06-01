@@ -89,7 +89,7 @@ public class SegmentParser {
 
                 String input = br.readLine();
                 while (input != null) {
-                    while (!input.isEmpty()) //accumulate until empty string
+                    while ((input != null) && (!input.isEmpty())) //accumulate until empty string
                     {
                         srtStrings.add(input);
                         input = br.readLine();
